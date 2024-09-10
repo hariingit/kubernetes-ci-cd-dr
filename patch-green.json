@@ -6,6 +6,8 @@
         "http": {
           "paths": [
             {
+              "path": "/",
+              "pathType": "Prefix",
               "backend": {
                 "service": {
                   "name": "green-service",
@@ -13,8 +15,7 @@
                     "number": 80
                   }
                 }
-              },
-              "path": "/"
+              }
             }
           ]
         }
