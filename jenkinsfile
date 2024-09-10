@@ -10,8 +10,7 @@ pipeline {
         stage('Patch Ingress') {
             steps {
                 // Patch ingress resource
-                sh 'kubectl patch ingress/my-app-ingress --patch-file patch.json'
-            }
+               sh 'kubectl patch ingress/my-app-ingress --type=merge --patch-file patch.json'
         }
         stage('Switch Traffic to Green') {
             steps {
