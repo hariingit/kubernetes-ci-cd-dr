@@ -1,0 +1,22 @@
+{
+  "spec": {
+    "rules": [
+      {
+        "host": "my-app.example.com",
+        "http": {
+          "paths": [
+            {
+              "backend": {
+                "service": {
+                  "name": "green-service",
+                  "port": "80"
+                }
+              },
+              "path": "/"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
