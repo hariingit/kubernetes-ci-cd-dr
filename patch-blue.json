@@ -8,8 +8,10 @@
             {
               "backend": {
                 "service": {
-                  "name": "blue-service",
-                  "port": 80
+                  "name": "green-service",
+                  "port": {
+                    "number": 80
+                  }
                 }
               },
               "path": "/"
