@@ -7,10 +7,16 @@ pipeline {
                 sh 'kubectl apply -f green-deployment.yaml'
             }
         }
+        stage('Patch Ingress') {
+            steps {
+                // Patch ingress resource
+                sh 'kubectl patch ingress/my-app-ingress --patch-file patch.json'
+            }
+        }
         stage('Switch Traffic to Green') {
             steps {
                 // Update ingress resource to point to green service
-                sh 'kubectl patch ingress/my-app-ingress -p \'{"spec":{"rules":[{"host":"my-app.example.com","http":{"paths":[{"path":"/","backend":{"service":{"name":"green-service","port":80}}}]}}]}}\''
+                sh 'kubectl patch ingress/my-app-ingress -p \'{"patch": [{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value": "green-service"}, {"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/port", "value": 80}]}\''
             }
         }
         stage('Verify Green') {
@@ -22,7 +28,7 @@ pipeline {
         stage('Rollback to Blue') {
             steps {
                 // Update ingress resource to point to blue service
-                sh 'kubectl patch ingress/my-app-ingress -p \'{"spec":{"rules":[{"host":"my-app.example.com","http":{"paths":[{"path":"/","backend":{"service":{"name":"blue-service","port":80}}}]}}]}}\''
+                sh 'kubectl patch ingress/my-app-ingress -p \'{"patch": [{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value": "blue-service"}, {"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/port", "value": 80}]}\''
             }
         }
     }

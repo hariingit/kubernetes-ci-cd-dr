@@ -1,0 +1,12 @@
+[
+  {
+    "op": "replace",
+    "path": "/spec/rules/0/http/paths/0/backend/service/name",
+    "value": "green-service"
+  },
+  {
+    "op": "replace",
+    "path": "/spec/rules/0/http/paths/0/backend/service/port",
+    "value": 80
+  }
+]
