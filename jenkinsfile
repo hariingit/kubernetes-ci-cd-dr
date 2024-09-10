@@ -1,6 +1,11 @@
 pipeline {
     agent any
     stages {
+        stage('Create Ingress') {
+            steps {
+                sh 'kubectl apply -f green-ingress.yaml'
+            }
+        }
         stage('Deploy to Green') {
             steps {
                 sh 'kubectl apply -f green-deployment.yaml'
