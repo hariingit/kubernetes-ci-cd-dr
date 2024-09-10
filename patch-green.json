@@ -9,7 +9,9 @@
               "backend": {
                 "service": {
                   "name": "green-service",
-                  "port": 80
+                  "port": {
+                    "number": 80
+                  }
                 }
               },
               "path": "/"
