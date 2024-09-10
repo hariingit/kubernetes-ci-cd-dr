@@ -9,14 +9,8 @@ pipeline {
         }
         stage('Patch Ingress') {
             steps {
-                // Patch ingress resource
-                sh 'kubectl patch ingress/my-app-ingress --type=merge --patch-file patch.json'
-            }
-        }
-        stage('Switch Traffic to Green') {
-            steps {
-                // Update ingress resource to point to green service
-                sh 'kubectl patch ingress/my-app-ingress -p \'{"patch": [{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value": "green-service"}, {"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/port", "value": 80}]}\''
+                // Patch ingress resource to point to green service
+                sh 'kubectl patch ingress/my-app-ingress --type=merge --patch-file patch-green.json'
             }
         }
         stage('Verify Green') {
@@ -27,9 +21,17 @@ pipeline {
         }
         stage('Rollback to Blue') {
             steps {
-                // Update ingress resource to point to blue service
-                sh 'kubectl patch ingress/my-app-ingress -p \'{"patch": [{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value": "blue-service"}, {"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/port", "value": 80}]}\''
+                // Update ingress resource to point to blue service in case of failure
+                catchError {
+                    sh 'kubectl patch ingress/my-app-ingress --type=merge --patch-file patch-blue.json'
+                }
             }
+        }
+    }
+    post {
+        failure {
+            // Automatically revert to blue environment in case of failure
+            sh 'kubectl patch ingress/my-app-ingress --type=merge --patch-file patch-blue.json'
         }
     }
 }
