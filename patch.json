@@ -1,37 +1,22 @@
-pipeline {
-    agent any
-    stages {
-        stage('Deploy to Green') {
-            steps {
-                // Deploy to green environment
-                sh 'kubectl apply -f green-deployment.yaml'
-            }
-        }
-        stage('Patch Ingress') {
-            steps {
-                // Patch ingress resource to point to green service
-                sh 'kubectl patch ingress/my-app-ingress --type=merge --patch-file patch-green.json'
-            }
-        }
-        stage('Verify Green') {
-            steps {
-                // Verify green environment is working correctly
-                sh 'kubectl get deployments -l environment=green'
-            }
-        }
-        stage('Rollback to Blue') {
-            steps {
-                // Update ingress resource to point to blue service in case of failure
-                catchError {
-                    sh 'kubectl patch ingress/my-app-ingress --type=merge --patch-file patch-blue.json'
+{
+  "spec": {
+    "rules": [
+      {
+        "host": "my-app.example.com",
+        "http": {
+          "paths": [
+            {
+              "backend": {
+                "service": {
+                  "name": "green-service",
+                  "port": "80"
                 }
+              },
+              "path": "/"
             }
+          ]
         }
-    }
-    post {
-        failure {
-            // Automatically revert to blue environment in case of failure
-            sh 'kubectl patch ingress/my-app-ingress --type=merge --patch-file patch-blue.json'
-        }
-    }
+      }
+    ]
+  }
 }
