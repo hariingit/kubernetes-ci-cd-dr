@@ -1,36 +1,38 @@
 pipeline {
     agent any
-
     stages {
-        stage('Create Namespace') {
+        stage('Deploy to Green') {
             steps {
-                sh 'kubectl create namespace dev-namespace'
+                sh 'kubectl apply -f green-deployment.yaml'
             }
         }
-        stage('Create Ingress') {
+        stage('Verify Ingress') {
             steps {
-                sh 'kubectl apply -f ingress.yaml -n dev-namespace'
+                sh 'kubectl get ingress -n production-namespace'
+                sh 'kubectl describe ingress example-ingress -n production-namespace'
             }
         }
         stage('Patch Ingress') {
             steps {
-                sh 'kubectl patch ingress/my-app-ingress -n dev-namespace --type=merge --patch-file patch.json'
+                sh 'kubectl patch ingress/example-ingress -n production-namespace --type=merge --patch-file patch-green.json'
             }
         }
         stage('Verify Green') {
             steps {
-                sh 'kubectl get ingress/my-app-ingress -n dev-namespace'
+                sh 'kubectl get deployments -l environment=green -n production-namespace'
             }
         }
         stage('Rollback to Blue') {
             steps {
-                sh 'kubectl patch ingress/my-app-ingress -n dev-namespace --type=merge --patch-file patch-blue.json'
+                catchError {
+                    sh 'kubectl patch ingress/example-ingress -n production-namespace --type=merge --patch-file patch-blue.json'
+                }
             }
         }
     }
     post {
         failure {
-            sh 'kubectl patch ingress/my-app-ingress -n dev-namespace --type=merge --patch-file patch-blue.json'
+            sh 'kubectl patch ingress/example-ingress -n production-namespace --type=merge --patch-file patch-blue.json'
         }
     }
 }
