@@ -8,31 +8,31 @@ pipeline {
         }
         stage('Verify Ingress') {
             steps {
-                sh 'kubectl get ingress -n production-namespace'
-                sh 'kubectl describe ingress example-ingress -n production-namespace'
+                sh 'kubectl get ingress -n default'
+                sh 'kubectl describe ingress example-ingress -n default'
             }
         }
         stage('Patch Ingress') {
             steps {
-                sh 'kubectl patch ingress/example-ingress -n production-namespace --type=merge --patch-file patch-green.json'
+                sh 'kubectl patch ingress/example-ingress -n default --type=merge --patch-file patch-green.json'
             }
         }
         stage('Verify Green') {
             steps {
-                sh 'kubectl get deployments -l environment=green -n production-namespace'
+                sh 'kubectl get deployments -l environment=green -n default'
             }
         }
         stage('Rollback to Blue') {
             steps {
                 catchError {
-                    sh 'kubectl patch ingress/example-ingress -n production-namespace --type=merge --patch-file patch-blue.json'
+                    sh 'kubectl patch ingress/example-ingress -n default --type=merge --patch-file patch-blue.json'
                 }
             }
         }
     }
     post {
         failure {
-            sh 'kubectl patch ingress/example-ingress -n production-namespace --type=merge --patch-file patch-blue.json'
+            sh 'kubectl patch ingress/example-ingress -n default --type=merge --patch-file patch-blue.json'
         }
     }
 }
