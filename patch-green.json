@@ -2,7 +2,7 @@
   "spec": {
     "rules": [
       {
-        "host": "my-app.com",
+        "host": "example.com",
         "http": {
           "paths": [
             {
