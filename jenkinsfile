@@ -7,6 +7,12 @@ pipeline {
                 sh 'kubectl apply -f green-deployment.yaml'
             }
         }
+        stage('Verify Ingress') {
+            steps {
+                // Verify Ingress resource exists
+                sh 'kubectl get ingress/my-app-ingress'
+            }
+        }
         stage('Patch Ingress') {
             steps {
                 // Patch ingress resource to point to green service
